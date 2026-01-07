@@ -28,6 +28,7 @@ function PasswordInput({
           ref={ref}
           label="비밀번호"
           placeholder="비밀번호을 입력해주세요."
+          textContentType="oneTimeCode"
           submitBehavior={submitBehavior}
           returnKeyType={returnKeyType}
           secureTextEntry

@@ -1,115 +1,47 @@
 import FeedItem from '@/components/FeedItem';
 import { colors } from '@/constants';
-import React from 'react';
+import useGetInfinitePosts from '@/hooks/queries/useGetInfinitePosts';
+import { useScrollToTop } from '@react-navigation/native';
+import React, { useRef, useState } from 'react';
 import { FlatList, StyleSheet } from 'react-native';
 
 interface FeedListProps {}
 
-const dummyData = [
-  {
-    id: 1,
-    userId: 1,
-    title: '더미 제목입니다.',
-    description:
-      '더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.',
-    createdAt: '2025-01-01',
-    author: {
-      id: 1,
-      nickname: '닉네임',
-      imageUri: '',
-    },
-    imageUris: [],
-    likes: [],
-    hasVote: false,
-    voteCount: 1,
-    commentCount: 1,
-    viewCount: 1,
-  },
-  {
-    id: 1,
-    userId: 1,
-    title: '더미 제목입니다.',
-    description:
-      '더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.',
-    createdAt: '2025-01-01',
-    author: {
-      id: 1,
-      nickname: '닉네임',
-      imageUri: '',
-    },
-    imageUris: [],
-    likes: [],
-    hasVote: false,
-    voteCount: 1,
-    commentCount: 1,
-    viewCount: 1,
-  },
-  {
-    id: 1,
-    userId: 1,
-    title: '더미 제목입니다.',
-    description:
-      '더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.',
-    createdAt: '2025-01-01',
-    author: {
-      id: 1,
-      nickname: '닉네임',
-      imageUri: '',
-    },
-    imageUris: [],
-    likes: [],
-    hasVote: false,
-    voteCount: 1,
-    commentCount: 1,
-    viewCount: 1,
-  },
-  {
-    id: 1,
-    userId: 1,
-    title: '더미 제목입니다.',
-    description:
-      '더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.',
-    createdAt: '2025-01-01',
-    author: {
-      id: 1,
-      nickname: '닉네임',
-      imageUri: '',
-    },
-    imageUris: [],
-    likes: [],
-    hasVote: false,
-    voteCount: 1,
-    commentCount: 1,
-    viewCount: 1,
-  },
-  {
-    id: 1,
-    userId: 1,
-    title: '더미 제목입니다.',
-    description:
-      '더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.더미 내용입니다.',
-    createdAt: '2025-01-01',
-    author: {
-      id: 1,
-      nickname: '닉네임',
-      imageUri: '',
-    },
-    imageUris: [],
-    likes: [],
-    hasVote: false,
-    voteCount: 1,
-    commentCount: 1,
-    viewCount: 1,
-  },
-];
-
 function FeedList({}: FeedListProps) {
+  const {
+    data: posts,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    refetch,
+  } = useGetInfinitePosts();
+
+  const ref = useRef<FlatList | null>(null);
+  const [isRefreshing, setIsrefreshing] = useState(false);
+  useScrollToTop(ref);
+
+  const handleEndReached = () => {
+    if (hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  };
+
+  const handleRefresh = async () => {
+    setIsrefreshing(true);
+    await refetch();
+    setIsrefreshing(false);
+  };
   return (
     <FlatList
-      data={dummyData}
+      ref={ref}
+      data={posts?.pages.flat()}
       renderItem={({ item }) => <FeedItem post={item} />}
       keyExtractor={(item) => String(item.id)}
       contentContainerStyle={styles.contentContainer}
+      onEndReached={handleEndReached}
+      onEndReachedThreshold={0.5}
+      refreshing={isRefreshing}
+      onRefresh={handleRefresh}
     />
   );
 }

@@ -20,6 +20,7 @@ function PasswordConfirmInput() {
           ref={ref}
           label="비밀번호 확인"
           placeholder="비밀번호을 입력해주세요."
+          textContentType="oneTimeCode"
           value={value}
           secureTextEntry
           onChangeText={onChange}

@@ -1,39 +1,98 @@
+import ImagePreviewList from '@/components/ImagePreviewList';
 import Profile from '@/components/Profile';
 import { colors } from '@/constants';
+import useAuth from '@/hooks/queries/useAuth';
+import useDeletePosts from '@/hooks/queries/useDeletePost';
 import { Post } from '@/types';
+import { useActionSheet } from '@expo/react-native-action-sheet';
 import { Ionicons, MaterialCommunityIcons, Octicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 interface FeedItemProps {
   post: Post;
+  isDetail?: boolean;
 }
 
-function FeedItem({ post }: FeedItemProps) {
-  const isLike = false;
+function FeedItem({ post, isDetail = false }: FeedItemProps) {
+  const { auth } = useAuth();
+
+  const likeUsers = post.likes?.map((like) => Number(like.userId));
+  const isLiked = likeUsers?.includes(Number(auth.id));
+
+  const { showActionSheetWithOptions } = useActionSheet();
+  const deletePost = useDeletePosts();
+
+  const handlePressOption = () => {
+    const options = ['삭제', '수정', '취소'];
+    const destructiveButtonIndex = 0;
+    const cancelButtonIndex = 2;
+    showActionSheetWithOptions(
+      { options, destructiveButtonIndex, cancelButtonIndex },
+      (selectedIndex?: number) => {
+        console.log('selectedIndex', selectedIndex);
+        switch (selectedIndex) {
+          case destructiveButtonIndex:
+            deletePost.mutate(post.id, {
+              onSuccess: () => isDetail && router.back(),
+            });
+            break;
+          case 1:
+            router.push(`/post/update/${post.id}`);
+            break;
+          case cancelButtonIndex:
+            break;
+          default:
+            break;
+        }
+      }
+    );
+  };
+
+  const handlePressFeed = () => {
+    if (!isDetail) {
+      router.push(`/post/${post.id}`);
+    }
+  };
+
+  const ContainerComponent = isDetail ? View : Pressable;
+
   return (
-    <View style={styles.container}>
+    <ContainerComponent style={styles.container} onPress={handlePressFeed}>
       <View style={styles.contentContainer}>
         <Profile
           imageUri={post.author.imageUri}
           nickname={post.author.nickname}
           createdAt={post.createdAt}
           onPress={() => {}}
+          option={
+            auth.id === post.author.id && (
+              <Ionicons
+                name="ellipsis-vertical"
+                size={24}
+                color={colors.BLACK}
+                onPress={handlePressOption}
+              />
+            )
+          }
         />
         <Text style={styles.title}>{post.title}</Text>
         <Text numberOfLines={3} style={styles.description}>
           {post.description}
         </Text>
+
+        <ImagePreviewList imageUris={post.imageUris} />
       </View>
       <View style={styles.menuContainer}>
         <Pressable style={styles.menu}>
           <Octicons
-            name={isLike ? 'heart-fill' : 'heart'}
+            name={isLiked ? 'heart-fill' : 'heart'}
             size={16}
-            color={isLike ? colors.ORANGE_600 : colors.BLACK}
+            color={isLiked ? colors.ORANGE_600 : colors.BLACK}
           />
-          <Text style={isLike ? styles.activeMenuText : styles.menuText}>
-            1
+          <Text style={isLiked ? styles.activeMenuText : styles.menuText}>
+            {post.likes.length || '좋아요'}
           </Text>
         </Pressable>
         <Pressable style={styles.menu}>
@@ -42,14 +101,14 @@ function FeedItem({ post }: FeedItemProps) {
             size={16}
             color={colors.BLACK}
           />
-          <Text style={styles.menuText}>1</Text>
+          <Text style={styles.menuText}>{post.commentCount || '댓글'}</Text>
         </Pressable>
         <Pressable style={styles.menu}>
           <Ionicons name="eye-outline" size={16} color={colors.BLACK} />
-          <Text style={styles.menuText}>1</Text>
+          <Text style={styles.menuText}>{post.viewCount}</Text>
         </Pressable>
       </View>
-    </View>
+    </ContainerComponent>
   );
 }
 
@@ -85,6 +144,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     width: 33,
     gap: 4,
+    flex: 1,
   },
   menuText: {
     color: colors.GRAY_700,
