@@ -3,6 +3,7 @@ import TitleInput from '@/components/TitleInput';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 import CustomButton from '@/components/CustomButton';
+import VoteAttached from '@/components/VoteAttached';
 import useGetpost from '@/hooks/queries/useGetPost';
 import useUpdatePost from '@/hooks/queries/useUpdatePost';
 import { ImageUri } from '@/types';
@@ -15,6 +16,7 @@ type FormValues = {
   title: string;
   description: string;
   imageUris: ImageUri[];
+  isVoteAttached: boolean;
 };
 
 export default function PostUpdateScreen() {
@@ -24,15 +26,11 @@ export default function PostUpdateScreen() {
 
   const navigation = useNavigation();
   const postForm = useForm<FormValues>({
-    // defaultValues: {
-    //   title: post?.title,
-    //   description: post?.description,
-    //   imageUris: post?.imageUris,
-    // },
-    values: {
-      title: post?.title || '',
-      description: post?.description || '',
-      imageUris: post?.imageUris || [],
+    defaultValues: {
+      title: post?.title,
+      description: post?.description,
+      imageUris: post?.imageUris,
+      isVoteAttached: post?.hasVote,
     },
   });
 
@@ -66,6 +64,7 @@ export default function PostUpdateScreen() {
       <KeyboardAwareScrollView contentContainerStyle={styles.container}>
         <TitleInput />
         <DescriptionInput />
+        <VoteAttached />
       </KeyboardAwareScrollView>
     </FormProvider>
   );
