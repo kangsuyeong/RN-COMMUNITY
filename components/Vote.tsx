@@ -39,7 +39,7 @@ function Vote({ postId, postVotes, voteCount }: VoteProps) {
         );
         const isVoted = voteUserIds.includes(Number(auth.id));
         return (
-          <Fragment>
+          <Fragment key={vote.id}>
             {vote.options.map((option) => {
               return (
                 <VoteOption
