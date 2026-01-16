@@ -81,7 +81,9 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
           imageUri={post.author.imageUri}
           nickname={post.author.nickname}
           createdAt={post.createdAt}
-          onPress={() => {}}
+          onPress={() => {
+            router.push(`/profile/${post.author.id}`);
+          }}
           option={
             auth.id === post.author.id && (
               <Ionicons
