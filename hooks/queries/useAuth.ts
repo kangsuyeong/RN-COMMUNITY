@@ -1,4 +1,4 @@
-import { getMe, postLogin, postSignup } from '@/api/auth';
+import { editProfile, getMe, postLogin, postSignup } from '@/api/auth';
 import queryClient from '@/api/queryClient';
 import { queryKey } from '@/constants';
 import { removeHeader, setHeader } from '@/utils/header';
@@ -61,10 +61,20 @@ function useSignup() {
   });
 }
 
+function useUpdateProfile() {
+  return useMutation({
+    mutationFn: editProfile,
+    onSuccess: (newProfile) => {
+      queryClient.setQueryData([queryKey.AUTH, queryKey.GET_ME], newProfile);
+    },
+  });
+}
+
 function useAuth() {
   const { data } = useGetMe();
   const loginMutation = useLogin();
   const signupMutation = useSignup();
+  const profileMutation = useUpdateProfile();
 
   const logout = () => {
     console.log('클릭은되는거지?');
@@ -83,6 +93,7 @@ function useAuth() {
     loginMutation,
     signupMutation,
     logout,
+    profileMutation,
   };
 }
 
