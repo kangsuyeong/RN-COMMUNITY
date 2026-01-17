@@ -25,6 +25,7 @@ const queryKey = {
   GET_LIKED_POSTS: 'getLikedPosts',
   GET_MY_POSTS: 'getMyposts',
   GET_USER_PROFILE: 'getUserProfile',
+  AVATAR: 'avatar',
 };
 
 export { colors, queryKey };

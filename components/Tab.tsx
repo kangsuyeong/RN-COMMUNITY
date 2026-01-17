@@ -28,8 +28,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     justifyContent: 'center',
     alignItems: 'center',
-    // borderBottomColor: colors.WHITE,
-    // borderWidth: 2,
+    borderBottomColor: colors.WHITE,
+    borderBottomWidth: 2,
   },
   activeContainer: {
     borderBottomColor: colors.BLACK,
