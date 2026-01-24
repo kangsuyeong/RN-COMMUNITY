@@ -8,8 +8,10 @@ import {
   saveSecureStore,
 } from '@/utils/secureStore';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { AxiosError } from 'axios';
 import { router } from 'expo-router';
 import { useEffect } from 'react';
+import Toast from 'react-native-toast-message';
 
 function useGetMe() {
   const { data, isError, isSuccess } = useQuery({
@@ -36,6 +38,12 @@ function useGetMe() {
   return { data };
 }
 
+type ResponseError = AxiosError<{
+  statusCode: number;
+  message: string;
+  error: string;
+}>;
+
 function useLogin() {
   return useMutation({
     mutationFn: postLogin,
@@ -47,7 +55,12 @@ function useLogin() {
       });
       router.replace('/');
     },
-    onError: (err) => console.log('로그인 에러:', err),
+    onError: (err: ResponseError) => {
+      Toast.show({
+        type: 'error',
+        text1: err.response?.data.message,
+      });
+    },
   });
 }
 
@@ -55,8 +68,11 @@ function useSignup() {
   return useMutation({
     mutationFn: postSignup,
     onSuccess: () => router.replace('/auth/login'),
-    onError: () => {
-      //
+    onError: (err: ResponseError) => {
+      Toast.show({
+        type: 'error',
+        text1: err.response?.data.message,
+      });
     },
   });
 }

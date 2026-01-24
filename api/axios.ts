@@ -6,6 +6,11 @@ export const baseUrls = {
   ios: 'http://localhost:3030',
 };
 
+// export const baseUrls = {
+//   android: 'http://192.168.0.165:3030',
+//   ios: 'http://192.168.0.165:3030',
+// };
+
 const axiosInstance = axios.create({
   baseURL: Platform.OS === 'ios' ? baseUrls.ios : baseUrls.android,
 });

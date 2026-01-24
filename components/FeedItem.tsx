@@ -49,7 +49,7 @@ function FeedItem({ post, isDetail = false }: FeedItemProps) {
           default:
             break;
         }
-      }
+      },
     );
   };
 
